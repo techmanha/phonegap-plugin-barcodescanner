@@ -64,7 +64,7 @@ public class BarcodeScanner extends CordovaPlugin {
 
     private JSONArray requestArgs;
     private CallbackContext callbackContext;
-
+    private Intent intentScan;
     /**
      * Constructor.
      */
@@ -121,6 +121,8 @@ public class BarcodeScanner extends CordovaPlugin {
             } else {
               scan(args);
             }
+        }else if (action.equals("cancel")) {
+            cancel();
         } else {
             return false;
         }
@@ -137,7 +139,7 @@ public class BarcodeScanner extends CordovaPlugin {
         cordova.getThreadPool().execute(new Runnable() {
             public void run() {
 
-                Intent intentScan = new Intent(that.cordova.getActivity().getBaseContext(), CaptureActivity.class);
+                intentScan = new Intent(that.cordova.getActivity().getBaseContext(), CaptureActivity.class);
                 intentScan.setAction(Intents.Scan.ACTION);
                 intentScan.addCategory(Intent.CATEGORY_DEFAULT);
 
@@ -206,6 +208,22 @@ public class BarcodeScanner extends CordovaPlugin {
         });
     }
 
+
+    public void cancel()
+    {
+        if(intentScan!=null)
+        {
+            this.cordova.getActivity().finishActivity(REQUEST_CODE);
+            JSONObject obj = new JSONObject();
+            this.callbackContext.success(obj);
+        }
+        else
+        {
+            this.callbackContext.error("Scanner not running");
+        }
+            
+    }
+    
     /**
      * Called when the barcode scanner intent completes.
      *
